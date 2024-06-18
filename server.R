@@ -79,3 +79,16 @@ server <- function(input, output) {
   output$renamed_variables <- renderDataTable({
     datos_renombrados()
   })
+  
+  output$duplicates_count <- renderPrint({
+    sum(duplicated(datos_renombrados()))
+  })
+  
+  output$na_count <- renderPrint({
+    sapply(datos_renombrados(), function(x) sum(is.na(x)))
+  })
+  
+  output$cleaned_data <- renderDataTable({
+    datos_limpios()
+  })
+  
