@@ -33,5 +33,18 @@ ui <- fluidPage(
         ),
         tabPanel("7. Analizar valores extremos",
                  verbatimTextOutput("outliers_count")
+      ),
+        tabPanel("8. Diagramas de caja sin valores extremos",
+                 plotOutput("boxplots_no_outliers")
+        ),
+        tabPanel("9. Recodificar 'smoking' y 'gender'",
+                 dataTableOutput("recoded_variables")
+        ),
+        tabPanel("10. Crear variables dummy",
+                 dataTableOutput("dummy_variables")
+        )
       )
     )
+  )
+)
+    
