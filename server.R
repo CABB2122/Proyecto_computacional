@@ -8,21 +8,36 @@
 #
 
 library(shiny)
+library(dplyr)
 
-# Define server logic required to draw a histogram
-function(input, output, session) {
-
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-
-    })
-
-}
+server <- function(input, output) {
+  
+  datos <- reactive({
+    req(input$file)
+    read.csv(input$file$datapath)
+  })
+  
+  datos_seleccionados <- eventReactive(input$process, {
+    datos() %>%
+      select(SEQN, SMQ020, RIAGENDR, RIDAGEYR, DMDEDUC2, BMXWT, BMXHT, BMXBMI)
+  })
+  
+  datos_renombrados <- eventReactive(input$process, {
+    datos_seleccionados() %>%
+      rename(
+        seqn = SEQN,
+        smoking = SMQ020,
+        gender = RIAGENDR,
+        age = RIDAGEYR,
+        education = DMDEDUC2,
+        weight = BMXWT,
+        height = BMXHT,
+        bmi = BMXBMI
+      )
+  })
+  
+  datos_limpios <- eventReactive(input$process, {
+    datos_renombrados() %>%
+      filter(!duplicated(.)) %>%
+      na.omit()
+  })
