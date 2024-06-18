@@ -9,6 +9,8 @@
 
 library(shiny)
 library(dplyr)
+library(ggplot2)
+library(fastDummies)
 
 server <- function(input, output) {
   
@@ -91,4 +93,53 @@ server <- function(input, output) {
   output$cleaned_data <- renderDataTable({
     datos_limpios()
   })
+
+  output$histograms <- renderPlot({
+    req(datos_limpios())
+    par(mfrow=c(2, 2))
+    hist(datos_limpios()$education, main="Años de Educación", xlab="Años", col="blue")
+    hist(datos_limpios()$weight, main="Peso (kg)", xlab="Kg", col="yellow")
+    hist(datos_limpios()$height, main="Altura (cm)", xlab="cm", col="red")
+    hist(datos_limpios()$bmi, main="Índice de Masa Corporal", xlab="BMI", col="green")
+  })
   
+  output$boxplots <- renderPlot({
+    req(datos_limpios())
+    boxplot(datos_limpios()[,c("education", "weight", "height", "bmi")], 
+            main="Diagrama de Cajas de Variables Numéricas", 
+            col=rainbow(4))
+  })
+  
+  output$outliers_count <- renderPrint({
+    identificar_extremos <- function(x) {
+      if (is.numeric(x)) {
+        Quartil1 <- quantile(x, 0.25)
+        Quartil3 <- quantile(x, 0.75)
+        recorrido_i <- Quartil3 - Quartil1
+        limite_inferior <- Quartil1 - 1.5 * recorrido_i
+        limite_superior <- Quartil3 + 1.5 * recorrido_i
+        
+        extremos <- sum(x < limite_inferior | x > limite_superior)
+        return(extremos)
+      } else {
+        return(0)
+      }
+    }
+    sapply(datos_limpios(), identificar_extremos)
+  })
+  
+  output$boxplots_no_outliers <- renderPlot({
+    req(datos_sin_extremos())
+    boxplot(datos_sin_extremos()[,c("education", "weight", "height", "bmi")], 
+            main="Diagrama de Cajas sin Valores Extremos", 
+            col=rainbow(4))
+  })
+  
+  output$recoded_variables <- renderDataTable({
+    datos_recodificados()
+  })
+  
+  output$dummy_variables <- renderDataTable({
+    datos_dummy()[, c( "smoking_yes", "smoking_no", "gender_male", "gender_female")]
+  })
+}
