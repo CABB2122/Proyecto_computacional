@@ -24,6 +24,14 @@ ui <- fluidPage(
                  verbatimTextOutput("duplicates_count"),
                  verbatimTextOutput("na_count"),
                  dataTableOutput("cleaned_data")
-        )
+        ),
+        tabPanel("5. Histogramas",
+                 plotOutput("histograms")
+        ),
+        tabPanel("6. Diagramas de caja",
+                 plotOutput("boxplots")
+        ),
+        tabPanel("7. Analizar valores extremos",
+                 verbatimTextOutput("outliers_count")
       )
     )
