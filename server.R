@@ -41,3 +41,30 @@ server <- function(input, output) {
       filter(!duplicated(.)) %>%
       na.omit()
   })
+  
+   datos_sin_extremos <- reactive({
+    datos_limpios() %>% 
+      filter(between(weight, quantile(weight, 0.25) - 1.5 * IQR(weight), quantile(weight, 0.75) + 1.5 * IQR(weight)) &
+               between(height, quantile(height, 0.25) - 1.5 * IQR(height), quantile(height, 0.75) + 1.5 * IQR(height)) &
+               between(bmi, quantile(bmi, 0.25) - 1.5 * IQR(bmi), quantile(bmi, 0.75) + 1.5 * IQR(bmi)))
+  })
+  
+  datos_recodificados <- reactive({
+    datos_limpios() %>%
+      mutate(
+        smoking = case_when(
+          smoking == 1 ~ "yes",
+          smoking == 2 ~ "no",
+          smoking %in% c(7, 9) ~ NA_character_
+        ),
+        gender = case_when(
+          gender == 1 ~ "male",
+          gender == 2 ~ "female"
+        )
+      )
+  })
+  
+  datos_dummy <- reactive({
+    dummy_cols(datos_recodificados(), select_columns = c("smoking", "gender"))
+  })
+  
