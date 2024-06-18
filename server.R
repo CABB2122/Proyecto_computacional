@@ -67,4 +67,15 @@ server <- function(input, output) {
   datos_dummy <- reactive({
     dummy_cols(datos_recodificados(), select_columns = c("smoking", "gender"))
   })
+  output$data_structure <- renderPrint({
+    req(datos())
+    str(datos())
+  })
   
+  output$selected_variables <- renderDataTable({
+    datos_seleccionados()
+  })
+  
+  output$renamed_variables <- renderDataTable({
+    datos_renombrados()
+  })
